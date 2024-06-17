@@ -57,12 +57,36 @@
     color: var(--text);
 }
 
+.section_content u{
+    text-transform: uppercase;
+}
+
 a.anchor {
     display: block;
     position: relative;
     top: -10vh;
     visibility: hidden;
 }
+
+hr.separator_rounded {
+    position: relative;
+    border-top: 4px solid var(--text);
+    border-radius: 2px;
+
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+
+    display: block;
+    width: 20vw;
+}
+
+#qualifications_content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 
 /* #about_content {
     position: relative;

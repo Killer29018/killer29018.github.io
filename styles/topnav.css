@@ -1,0 +1,44 @@
+@import url("colourscheme.css");
+
+.topnav {
+    position: fixed;
+    width: 96.5%;
+    height: 10%;
+    margin: 1%;
+    background-color: var(--surface_0);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    border-radius: 15px;
+    z-index: 100;
+}
+
+.topnav a {
+    color: #f2f2f2;
+    text-decoration: none;
+    padding: 0% 3%;
+    margin: 0.8%;
+    border-radius: 15px;
+    text-transform: uppercase;
+    position: relative;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.topnav span {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+}
+
+.topnav a:hover {
+    background-color: var(--surface_2);
+}
+
+.topnav a.active {
+    background-color: var(--lavender);
+    color: var(--mantle);
+}

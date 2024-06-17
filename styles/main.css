@@ -1,0 +1,10 @@
+@import url("colourscheme.css");
+
+* {
+    font-family: Arial;
+    font-size: 25px;
+}
+
+:root {
+    background-color: var(--base);
+}

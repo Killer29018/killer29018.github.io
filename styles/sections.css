@@ -77,8 +77,10 @@ hr.separator_rounded {
     margin: 0;
     padding: 0;
 
+    left: 0;
+    right: 0;
+
     display: block;
-    width: 20vw;
 }
 
 #qualifications_content {
@@ -86,7 +88,6 @@ hr.separator_rounded {
     flex-direction: column;
     gap: 15px;
 }
-
 
 /* #about_content {
     position: relative;

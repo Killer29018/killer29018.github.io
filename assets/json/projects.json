@@ -1,0 +1,36 @@
+{
+    "activeProjects": [
+        {
+            "name": "OCaml Ratracer",
+            "img": "",
+            "link": "",
+            "description": "A raytracer written in OCaml, outputting to a PPM file. Capable of loading OBJ files"
+        }
+    ],
+    "previousProjects": [
+        {
+            "name": "Compute shader Raytracer",
+            "img": "./assets/imgs/ComputeShaderRaytracer.png",
+            "link": "https://github.com/Killer29018/ComputeShaderRaytracer",
+            "description": "A compute shader raytracer based on the raytracer from the 'Raytracing in one weekend' series by Peter Shirley"
+        },
+        {
+            "name": "Rubik Cube Solver",
+            "img": "./assets/imgs/RubikCube.png",
+            "link": "https://github.com/Killer29018/RubikCubeSolver",
+            "description": "A Rubik cube visualiser and solver capable of solving both a 2x2 and 3x3 cube based on the beginner's method"
+        },
+        {
+            "name": "LED Controller",
+            "img": "./assets/imgs/LEDController.png",
+            "link": "https://github.com/Killer29018/LEDController",
+            "description": "A controller for an LED matrix using WLED for control, allowing for different effects and colour palettes to be selected and created"
+        },
+        {
+            "name": "Concat",
+            "img": "./assets/imgs/Concat.png",
+            "link": "https://github.com/Killer29018/Concat",
+            "description": "A Reverse Polish Notation (RPN) based scripting language"
+        }
+    ]
+}

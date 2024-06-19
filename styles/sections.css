@@ -83,6 +83,18 @@ hr.separator_rounded {
     display: block;
 }
 
+#about_content {
+    max-width: 50vw;
+}
+
+#about_content h1 {
+    font-size: 45px;
+}
+
+#project_content {
+    max-width: 90%;
+}
+
 #qualifications_content {
     display: flex;
     flex-direction: column;

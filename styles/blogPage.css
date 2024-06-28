@@ -1,0 +1,47 @@
+@import url("colourscheme.css");
+
+#blog-background {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+
+    left: 2vw;
+    right: 2vw;
+
+    top: 10vh;
+
+    border-radius: calc(20px + 10px);
+
+    background-color: var(--surface_0);
+}
+
+#blog-content {
+    position: relative;
+    width: 100%;
+    margin: 10px;
+    border-radius: 20px;
+
+    padding: 0 10vw;
+
+    background-color: var(--mantle);
+
+    color: var(--text);
+}
+
+h1 {
+    text-align: center;
+    font-size: 30px;
+    text-decoration: underline;
+}
+
+h2 {
+    text-align: center;
+    font-size: 25px;
+}
+
+code {
+    color: var(--lavender);
+}

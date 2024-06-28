@@ -1,0 +1,49 @@
+@import url("colourscheme.css");
+
+#outerBlogTable {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    border-radius: calc(20px + 10px);
+    background-color: var(--surface_1);
+}
+
+#blogTable {
+    margin: 10px;
+    border-radius: 20px;
+    padding: 5px;
+
+    background-color: var(--base);
+}
+
+#blogTable tr {
+    display: flex;
+    margin: 10px 15px;
+}
+
+#blogTable:first-child() tr {
+    margin-top: 0px;
+}
+
+#blogTable:last-child() tr {
+    margin-bottom: 0px;
+}
+
+.blogListDivider {
+    color: var(--surface_0);
+}
+
+#blogTable td {
+    padding: 0px 10px;
+}
+
+.blogListDate {
+    text-align: left;
+}
+
+.blogListName {
+    text-align: right;
+}

@@ -2,13 +2,75 @@ document.addEventListener('readystatechange', event => {
     if (event.target.readyState == "interactive") {
         fetch('./assets/json/projects.json')
             .then((response) => response.json())
-            .then((json) => populateProjects(json));
+            .then((json) => { populateProjects(json); moveToHash(); });
+        fetch('./assets/json/blogList.json')
+            .then((response) => response.json())
+            .then((json) => { populateBlogs(json); });
     }
 })
 
-function redirect(url)
-{
+function moveToHash() {
+    let urlHash = window.location.hash;
+
+    if (urlHash) {
+        item = document.getElementById(urlHash.substring(1));
+        setTimeout(function() { item.scrollIntoView(true); console.log("Loaded"); }, 300);
+    }
+}
+
+function redirect(url) {
     window.open(url, "mywindow");
+}
+
+function populateBlogs(json) {
+    var blogsDoc = document.getElementById("blog_list");
+    console.log(blogsDoc);
+    blogs = json['blogs'];
+
+    var outerTable = document.createElement("div");
+    outerTable.setAttribute("id", "outerBlogTable")
+
+    var table = document.createElement("table");
+    table.setAttribute("id", "blogTable");
+
+    for (var i = 0; i < blogs.length; i++) {
+        blog = blogs[i];
+
+        var entry = document.createElement("tr");
+        entry.setAttribute("id", blog["md"])
+        entry.addEventListener("click", function() { gotoBlog(this) })
+
+        var date = document.createElement("td");
+        date.innerText = `${blog["date"]}`;
+        date.setAttribute("class", "blogListDate");
+
+        var name = document.createElement("td");
+        name.innerText = `${blog["name"]}`;
+        name.setAttribute("class", "blogListName");
+
+        var divider = document.createElement("div");
+        divider.innerText = "|";
+        divider.setAttribute("class", "blogListDivider");
+
+        entry.appendChild(date)
+        entry.appendChild(divider)
+        entry.appendChild(name)
+
+        table.appendChild(entry)
+
+    }
+
+    outerTable.appendChild(table);
+    blogsDoc.appendChild(outerTable);
+}
+
+function gotoBlog(item) {
+    var name = item.getAttribute("id")
+
+    localStorage.setItem("blogName", name);
+    console.log(`Written ${name}`);
+
+    window.location.href = "blog.html";
 }
 
 function populateProjects(json) {
@@ -23,6 +85,8 @@ function populateProjects(json) {
     for (var i = 0; i < previousProjects.length; i++) {
         addProject(previousProjects[i], previousProjectsDoc, false);
     }
+
+    console.log("Loaded projects");
 }
 
 function addProject(project, doc, isActive) {

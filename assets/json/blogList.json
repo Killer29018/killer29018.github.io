@@ -1,17 +1,9 @@
 {
     "blogs": [
         {
-            "name": "Temporary",
-            "date": "2024-06-19",
-            "md": "test.md",
-            "img": ""
-        },
-        {
-            "name": "Temporary2",
-            "date": "2024-06-28",
-            "md": "test2.md",
-            "img": ""
+            "name": "Ocaml Raytracer : Part 1",
+            "date": "2024-",
+            "page": "blogPages/OcamlRaytracer_Part1.html"
         }
     ]
 }
-

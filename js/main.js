@@ -3,6 +3,7 @@ document.addEventListener('readystatechange', event => {
         fetch('./assets/json/projects.json')
             .then((response) => response.json())
             .then((json) => { populateProjects(json); moveToHash(); });
+
         fetch('./assets/json/blogList.json')
             .then((response) => response.json())
             .then((json) => { populateBlogs(json); });
@@ -22,6 +23,13 @@ function redirect(url) {
     window.open(url, "mywindow");
 }
 
+function gotoBlog(x) {
+    console.log(x);
+    var name = x.getAttribute("data-page")
+    console.log(name)
+    window.location.href = name;
+}
+
 function populateBlogs(json) {
     var blogsDoc = document.getElementById("blog_list");
     console.log(blogsDoc);
@@ -37,7 +45,8 @@ function populateBlogs(json) {
         blog = blogs[i];
 
         var entry = document.createElement("tr");
-        entry.setAttribute("id", blog["md"])
+        entry.setAttribute("data-page", blog["page"])
+        // entry.setAttribute("id", blog["md"])
         entry.addEventListener("click", function() { gotoBlog(this) })
 
         var date = document.createElement("td");
@@ -64,24 +73,15 @@ function populateBlogs(json) {
     blogsDoc.appendChild(outerTable);
 }
 
-function gotoBlog(item) {
-    var name = item.getAttribute("id")
-
-    localStorage.setItem("blogName", name);
-    console.log(`Written ${name}`);
-
-    window.location.href = "blog.html";
-}
-
 function populateProjects(json) {
     var activeProjectsDoc = document.getElementById("projects_active");
-    activeProjects = json["activeProjects"];
+    var activeProjects = json["activeProjects"];
     for (var i = 0; i < activeProjects.length; i++) {
         addProject(activeProjects[i], activeProjectsDoc, true);
     }
 
     var previousProjectsDoc = document.getElementById("projects_previous");
-    previousProjects = json["previousProjects"];
+    var previousProjects = json["previousProjects"];
     for (var i = 0; i < previousProjects.length; i++) {
         addProject(previousProjects[i], previousProjectsDoc, false);
     }

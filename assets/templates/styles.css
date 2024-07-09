@@ -103,13 +103,13 @@ div.abstract-title {
   margin-bottom: 0.5em;
 }
 $endif$
-code {
-  font-family: $if(monofont)$$monofont$$else$Menlo, Monaco, Consolas, 'Lucida Console', monospace$endif$;
+code span{
+  font-family: andale mono, monospace, monospace;
 $if(monobackgroundcolor)$
   background-color: $monobackgroundcolor$;
   padding: .2em .4em;
 $endif$
-  font-size: 85%;
+  font-size: 100%;
   margin: 0;
   hyphens: manual;
 }
@@ -193,9 +193,17 @@ ul.task-list li input[type="checkbox"] {
 $if(quotes)$
 q { quotes: "“" "”" "‘" "’"; }
 $endif$
-$if(displaymath-css)$
-.display.math{display: block; text-align: center; margin: 0.5rem auto;}
-$endif$
+.display.math{
+  display: block;
+  text-align: center;
+  margin: 0.5rem auto;
+}
+msub>mn {
+  font-size: 85%;
+}
+msup>mn {
+  font-size: 85%;
+}
 $if(highlighting-css)$
 /* CSS for syntax highlighting */
 $highlighting-css$

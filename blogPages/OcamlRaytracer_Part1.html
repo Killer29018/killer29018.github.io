@@ -5,8 +5,11 @@
         <meta name="generator" content="pandoc" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 
-                                        <title>Portfolio</title>
+        <title>OCaml Ray tracer</title>
 
+                    <meta name="author" content="Aaron Danton" />
+                            <meta name="dcterms.date" content="2024-07-05" />
+                        
         <style>
             @import url("../styles/colourscheme.css");
             html {
@@ -90,9 +93,9 @@
               border-left: 2px solid #e6e6e6;
               color: #606060;
             }
-            code {
-              font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-              font-size: 85%;
+            code span{
+              font-family: andale mono, monospace, monospace;
+              font-size: 100%;
               margin: 0;
               hyphens: manual;
             }
@@ -168,7 +171,17 @@
               margin: 0 0.8em 0.2em -1.6em;
               vertical-align: middle;
             }
-            .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+            .display.math{
+              display: block;
+              text-align: center;
+              margin: 0.5rem auto;
+            }
+            msub>mn {
+              font-size: 85%;
+            }
+            msup>mn {
+              font-size: 85%;
+            }
             /* CSS for syntax highlighting */
             pre > code.sourceCode { white-space: pre; position: relative; }
             pre > code.sourceCode > span { line-height: 1.25; }
@@ -245,8 +258,25 @@
 
     <body>
         
-        
-        
+        <!--  -->
+        <!-- <header id="title-block-header"> -->
+        <!--     <h1 class="title">OCaml Ray tracer</h1> -->
+        <!--      -->
+        <!---->
+        <!--      -->
+        <!--         <p class="author">Aaron Danton</p> -->
+        <!--      -->
+        <!---->
+        <!--      -->
+        <!--         <p class="date">2024-07-05</p> -->
+        <!--      -->
+        <!---->
+        <!--      -->
+        <!-- </header> -->
+        <!--  -->
+
+        <!--  -->
+
         <div class="topnav">
             <a href="../#about">About</a>
             <a href="../#projects">Projects</a>
@@ -294,65 +324,646 @@
                 one for each pixel. The basic implementation of these
                 two modules is as follows:</p>
                 <div class="sourceCode" id="cb1"><pre
-                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Vec3.mli *)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Vec3 : <span class="kw">sig</span></span>
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Vec3.ml *)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Vec3 = <span class="kw">struct</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> vec3 = {</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        x: <span class="dt">float</span>;</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        y: <span class="dt">float</span>;</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        z: <span class="dt">float</span>;</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">val</span> create : <span class="dt">float</span> -&gt; <span class="dt">float</span> -&gt; <span class="dt">float</span> -&gt; vec3</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create x y z =</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        { x = x; y = y; z = z }</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">(* Vec3.ml *)</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Vec3 = <span class="kw">struct</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> vec3 = {</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        x: <span class="dt">float</span>;</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        y: <span class="dt">float</span>;</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        z: <span class="dt">float</span>;</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create x y z =</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        { x = x; y = y; z = z }</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> zero = create <span class="dv">0</span>. <span class="dv">0</span>. <span class="dv">0</span>.</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> one = create <span class="dv">1</span>. <span class="dv">1</span>. <span class="dv">1</span>.</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> add a b =</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        { x = a.x +. b.x; y = a.y +. b.y; z = a.z +. b.z }</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> sub a b =</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        { x = a.x -. b.x; y = a.y -. b.y; z = a.z -. b.z }</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> dot a b =</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        a.x *. b.x +. a.y *. b.y +. a.z *. b.z</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scalar a s =</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        { x = a.x *. s; y = a.y *. s; z = a.z *. s }</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> comp_mul a b =</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        { x = a.x *. b.x; y = a.y *. b.y; z = a.z *. b.z }</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> mag_squared v =</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        dot v v</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> mag v =</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">sqrt</span> (mag_squared v)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> norm v =</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        scalar v (<span class="dv">1</span>. /. (mag v))</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> negate v =</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        scalar v ~-.<span class="dv">1</span>.</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
                 <div class="sourceCode" id="cb2"><pre
-                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Pixels.mli *)</span></span>
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Pixels.ml *)</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Pixels : <span class="kw">sig</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Pixels = <span class="kw">struct</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> pixel = {</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        x: <span class="dt">int</span>;</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        y: <span class="dt">int</span>;</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        z: <span class="dt">int</span>;</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">val</span> pixel_of_vec3 : Vec3.vec3 -&gt; pixel</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">val</span> to_string : pixel -&gt; <span class="dt">string</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">(* Pixels.ml *)</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Pixels = <span class="kw">struct</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> pixel = {</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        x: <span class="dt">int</span>;</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        y: <span class="dt">int</span>;</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        z: <span class="dt">int</span>;</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> pixel_of_vec3 (v : Vec3.vec3) =</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> x = <span class="dt">int_of_float</span> (v.x *. <span class="dv">255</span>.) <span class="kw">in</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> y = <span class="dt">int_of_float</span> (v.y *. <span class="dv">255</span>.) <span class="kw">in</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> z = <span class="dt">int_of_float</span> (v.z *. <span class="dv">255</span>.) <span class="kw">in</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        { x = x; y = y; z = z }</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> to_string p =</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Printf</span>.sprintf <span class="st">&quot;%3d %3d %3d&quot;</span> p.x p.y p.z</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
-                <p>Pixels is used as an intermediary between taking the
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> pixel_of_vec3 (v : Vec3.vec3) =</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> x = <span class="dt">int_of_float</span> (v.x *. <span class="dv">255</span>.) <span class="kw">in</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> y = <span class="dt">int_of_float</span> (v.y *. <span class="dv">255</span>.) <span class="kw">in</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> z = <span class="dt">int_of_float</span> (v.z *. <span class="dv">255</span>.) <span class="kw">in</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        { x = x; y = y; z = z }</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> string_of_pixel p =</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Printf</span>.sprintf <span class="st">&quot;%3d %3d %3d&quot;</span> p.x p.y p.z</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <p>The pixel type is used as an intermediary between the
                 colours generated by the ray tracer, where each
                 component has a value between 0-1, and the output
-                required for the image format where an 8 bit integer is
-                required for each component.</p>
+                required for the ppm image format where an 8 bit integer
+                is required for each rgb colour component.</p>
+                <p>These modules provide the basis of an image, meaning
+                all that is needed now is a wrapper around the data of
+                the image and a way to output that data to the console,
+                allowing us to pipe that output to a file</p>
+                <blockquote>
+                <p>To try and clear up confusion that may occur, an
+                image consists of pixels, which in this context can
+                either be a vec3 or a pixel type. For this reason I will
+                refer to the pixels in an image as the data of the
+                image.</p>
+                </blockquote>
+                <h3 id="breakdown-of-the-ppm-image-format">Breakdown of
+                the ppm image format</h3>
+                <p>The ppm image format used here consists of a header
+                and then the data.</p>
+                <p>The header solely consists of a type (In our case
+                that is P3), the max bit depth, and then the width and
+                height of the image.</p>
+                <p>Then for the data each row is an individual pixel
+                consisting of three integers with spaces in between
+                representing the red, green and blue channels. An
+                integer equal to the bit depth would represent full
+                intensity while 0 represents no intensity.</p>
+                <p>Typically the maximum bit depth is 255, however some
+                image viewers do allow for a limit of 65535. A simple
+                example of a ppm image is</p>
+                <div class="sourceCode" id="cb3"><pre
+                class="sourceCode txt"><code class="sourceCode default"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>P3</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>3 2</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>255</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>255   0   0</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  0 255   0</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  0   0 255</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>255 255   0</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>255 255 255</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  0   0   0</span></code></pre></div>
+                <p>which, when scaled up, generates the following image
+                <img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/example_ppm.png" /></p>
+                <h2 id="images">Images</h2>
+                <div class="sourceCode" id="cb4"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Image.ml *)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Pixel</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Image = <span class="kw">struct</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> &#39;a image = {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        width: <span class="dt">int</span>;</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        height: <span class="dt">int</span>;</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        data: &#39;a <span class="dt">array</span> <span class="dt">array</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> map f i =</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            width = i.width;</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            height = i.height;</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            data = <span class="dt">Array</span>.map (<span class="kw">fun</span> r -&gt; <span class="dt">Array</span>.map (<span class="kw">fun</span> x -&gt; f x) r) i.data</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> mapi f i =</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>            width = i.width;</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            height = i.height;</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>            data = <span class="dt">Array</span>.mapi (<span class="kw">fun</span> yp r -&gt; <span class="dt">Array</span>.mapi (<span class="kw">fun</span> xp x -&gt; f x xp yp) r) i.data</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> iter f i =</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Array</span>.iter (<span class="kw">fun</span> r -&gt; <span class="dt">Array</span>.iter (<span class="kw">fun</span> x -&gt; f x) r) i.data</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create_vec3_image w h =</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        { width = w; height = h; data = <span class="dt">Array</span>.make_matrix w h Vec3.zero }</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> pixel_image_of_vec3_image i =</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        map (Pixels.pixel_of_vec3) i</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> print_pixel_image i =</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        iter (<span class="kw">fun</span> x -&gt; <span class="dt">Printf</span>.printf <span class="st">&quot;%s</span><span class="ch">\n</span><span class="st">&quot;</span> (Pixels.string_of_pixel x)) i</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ppm_of_pixel_image i =</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Printf</span>.printf <span class="st">&quot;P3</span><span class="ch">\n</span><span class="st">%d %d</span><span class="ch">\n</span><span class="st">255</span><span class="ch">\n</span><span class="st">&quot;</span> i.width i.height;</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        print_pixel_image i</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <p>And finally we can add into the main file some code
+                that can produce a basic image. For example we can
+                generate a checkerboard with the following code</p>
+                <div class="sourceCode" id="cb5"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Image</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> () =</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> checkerboard _p x y =</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> (x + y) <span class="kw">mod</span> <span class="dv">2</span> == <span class="dv">0</span> <span class="kw">then</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            Vec3.one</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            Vec3.zero</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> image = Image.generate_vec3_image <span class="dv">20</span> <span class="dv">20</span> <span class="kw">in</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> image = Image.mapi checkerboard image <span class="kw">in</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    Image.ppm_of_pixel_image (Image.pixel_image_of_vec3_image image)</span></code></pre></div>
+                <p>Which, if all has been done correctly, should output
+                something along the lines of</p>
+                <div class="sourceCode" id="cb6"><pre
+                class="sourceCode txt"><code class="sourceCode default"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>P3</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>20 20</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>255</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>255 255 255</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  0   0   0</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>255 255 255</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  0   0   0</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>255 255 255</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  0   0   0</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>     .</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>     .</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>     .</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>     .</span></code></pre></div>
+                <p>If this output is piped to a file with a .ppm
+                extension, and a suitable image viewer is used then the
+                following image should become visible</p>
+                <p><img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/checkerboard.png" /></p>
+                <h2 id="casting-rays">Casting rays</h2>
+                <p>Now that we have a way of representing images we can
+                start implementing the ability to cast rays into the
+                scene. For this we will need to implement the following
+                modules:</p>
+                <ul>
+                <li>Ray: A simple wrapper around two Vec3’s, one
+                representing the origin, and the other representing the
+                direction</li>
+                <li>Hit Record: A collection of data that returns
+                relevant information about the hit position on a
+                shape</li>
+                <li>Viewport: Has a size independent of the image,
+                allowing for the output image to be resized while the
+                rendered output will remain the same</li>
+                <li>Shape: Represents anything that a ray can intersect
+                with</li>
+                <li>Object: A collection of data that represents any
+                object in the final scene, for know only includes a
+                shape, but will eventually include materials</li>
+                <li>Scene: A collection of objects, and required
+                parameters for rendering the scene</li>
+                </ul>
+                <p>We will start at the top of the list and work
+                down.</p>
+                <h3 id="rays">Rays</h3>
+                <p>The ray is probably the simplest module that is
+                needed to be implemented</p>
+                <div class="sourceCode" id="cb7"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Ray.ml *)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Ray = <span class="kw">struct</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> ray = {</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        origin: Vec3.vec3;</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        direction: Vec3.vec3;</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create o d = { origin = o; direction = d }</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> calculate_position r t =</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        Vec3.add r.origin (Vec3.scalar r.direction t)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <h3 id="hit-record">Hit record</h3>
+                <p>A hit record requires a small bit more work but not
+                much</p>
+                <div class="sourceCode" id="cb8"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* HitRecord.ml *)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> HitRecord = <span class="kw">struct</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> hit_record = {</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> t: <span class="dt">float</span>;</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> pos: Vec3.vec3;</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> normal: Vec3.vec3;</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> is_front_face: <span class="dt">bool</span>;</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> hit = Miss</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>             | Hit <span class="kw">of</span> hit_record</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create_null =</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">fun</span> () -&gt; {</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            t = <span class="dv">0</span>.;</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>            pos = Vec3.zero;</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>            normal = Vec3.zero;</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>            is_front_face = <span class="kw">true</span>;</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <p>Mutable here is used to denote that we may change the
+                parameters after creating a hit_record object. This is
+                used for easier assigning to the record values when
+                creating a hit_record</p>
+                <h3 id="viewport">Viewport</h3>
+                <div class="sourceCode" id="cb9"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Viewport.ml *)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Image</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Viewport = <span class="kw">struct</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> viewport_T = {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        width: <span class="dt">float</span>;</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        height: <span class="dt">float</span>;</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        depth: <span class="dt">float</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create_null =</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">fun</span> () -&gt; {</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            width = <span class="dv">0</span>.;</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            height = <span class="dv">0</span>.;</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            depth = <span class="dv">0</span>.</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create width height depth =</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>            width = width;</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>            height = height;</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>            depth = depth</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> get_components v (i : &#39;a Image.image) =</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> half_width = v.width /. <span class="dv">2</span>. <span class="kw">in</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> half_height = v.height /. <span class="dv">2</span>. <span class="kw">in</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> origin = Vec3.zero <span class="kw">in</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> front = Vec3.create <span class="dv">0</span>. <span class="dv">0</span>. <span class="dv">1</span>. <span class="kw">in</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> right = Vec3.create <span class="dv">1</span>. <span class="dv">0</span>. <span class="dv">0</span>. <span class="kw">in</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> up = Vec3.create <span class="dv">0</span>. ~-.<span class="dv">1</span>. <span class="dv">0</span>. <span class="kw">in</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> center = Vec3.add (Vec3.scalar front v.depth) origin <span class="kw">in</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> left = Vec3.add (Vec3.scalar (Vec3.negate right) half_width) center <span class="kw">in</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> top_left = Vec3.add (Vec3.scalar up half_height) left <span class="kw">in</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> delta_right = Vec3.scalar right (v.width /. (<span class="dt">float_of_int</span> i.width)) <span class="kw">in</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> delta_down = Vec3.scalar (Vec3.negate up) (v.height /. (<span class="dt">float_of_int</span> i.height)) <span class="kw">in</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>        (top_left, delta_right, delta_down)</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <h3 id="shape">Shape</h3>
+                <p>The shape module has a lot more work required
+                compared to the previous two, requiring some maths to
+                calculate the intersection of a sphere and a ray which
+                can be seen below.</p>
+                <h4 id="ray-sphere-derivation">Ray sphere
+                Derivation</h4>
+                <p>We can define the ray as
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi>r</mi><mo accent="true">_</mo></munder><mo>=</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>+</mo><mi>t</mi><munder><mi>d</mi><mo accent="true">_</mo></munder></mrow><annotation encoding="application/x-tex"> \underline{r} = \underline{o} + t\underline{d} </annotation></semantics></math>
+                where
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><munder><mi>r</mi><mo accent="true">_</mo></munder><annotation encoding="application/x-tex">\underline{r}</annotation></semantics></math>
+                is our ray and
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><munder><mi>o</mi><mo accent="true">_</mo></munder><annotation encoding="application/x-tex">\underline{o}</annotation></semantics></math>,
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><munder><mi>d</mi><mo accent="true">_</mo></munder><annotation encoding="application/x-tex">\underline{d}</annotation></semantics></math>
+                our the origin and direction respectively.</p>
+                <p>We can then define a point on the sphere at the
+                origin as
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><munder><mi>p</mi><mo accent="true">_</mo></munder><mo stretchy="false" form="postfix">|</mo><mo>=</mo><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex"> \vert\underline{p}\vert = r^2 </annotation></semantics></math>
+                where
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><munder><mi>p</mi><mo accent="true">_</mo></munder><annotation encoding="application/x-tex">\underline{p}</annotation></semantics></math>
+                is some point and
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+                is the radius of the sphere</p>
+                <p>For a sphere not originating at the origin but
+                instead at a point
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><munder><mi>c</mi><mo accent="true">_</mo></munder><annotation encoding="application/x-tex">\underline{c}</annotation></semantics></math>
+                is defined as
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><munder><mi>p</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="false" form="postfix">|</mo><mo>=</mo><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex"> \vert\underline{p} - \underline{c}\vert = r^2 </annotation></semantics></math></p>
+                <p>Replacing
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><munder><mi>p</mi><mo accent="true">_</mo></munder><annotation encoding="application/x-tex">\underline{p}</annotation></semantics></math>
+                with the equation for the ray we get
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>+</mo><mi>t</mi><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="false" form="postfix">|</mo><mo>=</mo><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex"> \vert\underline{o} + t\underline{d} - \underline{c}\vert = r^2 </annotation></semantics></math></p>
+                <p>Expanding out the left hand side we get
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>+</mo><mi>t</mi><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>+</mo><mi>t</mi><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex"> (\underline{o} + t\underline{d} - \underline{c}) \cdot (\underline{o} + t\underline{d} - \underline{c}) = r^2 </annotation></semantics></math>
+                Which can be simplified to
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msup><munder><mi>o</mi><mo accent="true">_</mo></munder><mn>2</mn></msup><mo>+</mo><msup><munder><mi>c</mi><mo accent="true">_</mo></munder><mn>2</mn></msup><mo>+</mo><msup><mi>t</mi><mn>2</mn></msup><msup><munder><mi>d</mi><mo accent="true">_</mo></munder><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>t</mi><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>⋅</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>−</mo><mn>2</mn><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>⋅</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo>−</mo><mn>2</mn><mi>t</mi><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>⋅</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex"> (\underline{o}^2 + \underline{c}^2 + t^2\underline{d}^2 + 2t \underline{d}\cdot\underline{o} - 2 \underline{o}\cdot\underline{c} -2t \underline{d}\cdot\underline{c}) = r^2 </annotation></semantics></math>
+                Re-ordering around
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+                results in
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>t</mi><mn>2</mn></msup><mrow><mo stretchy="true" form="prefix">(</mo><msup><munder><mi>d</mi><mo accent="true">_</mo></munder><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>2</mn><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>⋅</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>⋅</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msup><munder><mi>o</mi><mo accent="true">_</mo></munder><mn>2</mn></msup><mo>−</mo><mn>2</mn><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>⋅</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo>+</mo><msup><munder><mi>c</mi><mo accent="true">_</mo></munder><mn>2</mn></msup><mo>−</mo><msup><mi>r</mi><mn>2</mn></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex"> t^2(\underline{d}^2) + 2t (\underline{d}\cdot\underline{o} - \underline{d}\cdot\underline{c}) + \underline{o}^2 - 2 \underline{o}\cdot\underline{c} + \underline{c}^2 - r^2 = 0</annotation></semantics></math>
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>t</mi><mn>2</mn></msup><mrow><mo stretchy="true" form="prefix">(</mo><msup><munder><mi>d</mi><mo accent="true">_</mo></munder><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>2</mn><mi>t</mi><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>−</mo><msup><mi>r</mi><mn>2</mn></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex"> t^2(\underline{d}^2) + 2t \underline{d}\cdot(\underline{o} - \underline{c}) + (\underline{o} - \underline{c})^2 - r^2 = 0 </annotation></semantics></math></p>
+                <p>If we then relabel some of the components we get
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>t</mi><mo>+</mo><mi>c</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex"> at^2 + bt + c = 0 </annotation></semantics></math>
+                Where
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><msup><munder><mi>d</mi><mo accent="true">_</mo></munder><mn>2</mn></msup></mrow><annotation encoding="application/x-tex"> a = \underline{d}^2 </annotation></semantics></math>
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mn>2</mn><munder><mi>d</mi><mo accent="true">_</mo></munder><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex"> b = 2\underline{d}\cdot(\underline{o} - \underline{c}) </annotation></semantics></math>
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><munder><mi>o</mi><mo accent="true">_</mo></munder><mo>−</mo><munder><mi>c</mi><mo accent="true">_</mo></munder><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>−</mo><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex"> c = (\underline{o} - \underline{c})^2 - r^2 </annotation></semantics></math></p>
+                <p>Therefore we can then use the quadratic formula to
+                solve for
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+                getting us
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mfrac><mrow><mi>−</mi><mi>b</mi><mo>±</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex"> t = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} </annotation></semantics></math></p>
+                <p>We can simplify this further be defining
+                <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>λ</mi><mo>=</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">2 \lambda = b</annotation></semantics></math>
+                which results in
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mfrac><mrow><mi>−</mi><mn>2</mn><mi>λ</mi><mo>±</mo><msqrt><mrow><mn>4</mn><msup><mi>λ</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex"> t = \frac{-2\lambda \pm \sqrt{4\lambda^2 - 4ac}}{2a} </annotation></semantics></math>
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mfrac><mrow><mi>−</mi><mn>2</mn><mi>λ</mi><mo>±</mo><mn>2</mn><msqrt><mrow><msup><mi>λ</mi><mn>2</mn></msup><mo>−</mo><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex"> t = \frac{-2\lambda \pm 2\sqrt{\lambda^2 - ac}}{2a} </annotation></semantics></math>
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mfrac><mrow><mi>−</mi><mi>λ</mi><mo>±</mo><msqrt><mrow><msup><mi>λ</mi><mn>2</mn></msup><mo>−</mo><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mi>a</mi></mfrac></mrow><annotation encoding="application/x-tex"> t = \frac{-\lambda \pm \sqrt{\lambda^2 - ac}}{a} </annotation></semantics></math></p>
+                <h4 id="code">Code</h4>
+                <div class="sourceCode" id="cb10"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Shape.ml *)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> HitRecord</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Ray</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Shape = <span class="kw">struct</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> sphere_data = {</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        centre: Vec3.vec3;</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        radius: <span class="dt">float</span>;</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">exception</span> ShapeError <span class="kw">of</span> <span class="dt">string</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> shape_T = <span class="dt">None</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                 | Sphere <span class="kw">of</span> sphere_data</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create_sphere c r =</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        Sphere { centre = c; radius = r }</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> get_normal s p =</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="kw">match</span> s <span class="kw">with</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        | Sphere s -&gt;</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>            Vec3.norm (Vec3.sub p s.centre)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        | _ -&gt; <span class="dt">raise</span> (ShapeError <span class="st">&quot;Normal is not defined for this shape&quot;</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> get_normal_and_front_face s p d =</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> normal = get_normal s p <span class="kw">in</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> dot = Vec3.dot normal d <span class="kw">in</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> dot &lt; <span class="dv">0</span>. <span class="kw">then</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>            (normal, <span class="kw">true</span>)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>            (Vec3.negate normal, <span class="kw">false</span>)</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> sphere_ray_collision (r : Ray.ray) s =</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> o_c = Vec3.sub r.origin s.centre <span class="kw">in</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> a = Vec3.dot r.direction r.direction <span class="kw">in</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> half_b = Vec3.dot r.direction o_c <span class="kw">in</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> c = (Vec3.dot o_c o_c) -. (s.radius *. s.radius) <span class="kw">in</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> disc = ((half_b *. half_b) -. (a *. c)) <span class="kw">in</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> disc &lt; <span class="dv">0</span>. <span class="kw">then</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>            HitRecord.Miss</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>            <span class="kw">let</span> disc = <span class="dt">sqrt</span> disc <span class="kw">in</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>            <span class="kw">let</span> t =</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (~-.half_b -. disc) &gt; <span class="fl">0.001</span> <span class="kw">then</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>                    (~-.half_b -. disc) /. a</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> <span class="kw">if</span> (~-.half_b +. disc) &gt; <span class="fl">0.001</span> <span class="kw">then</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>                    (~-.half_b +. disc) /. a</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>                    ~-.<span class="dv">1</span>.</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>            <span class="kw">in</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> t &lt;= <span class="dv">0</span>. <span class="kw">then</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>                HitRecord.Miss</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>            <span class="kw">else</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>                <span class="kw">let</span> pos = Ray.calculate_position r t <span class="kw">in</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>                <span class="kw">let</span> (normal, front_face) = get_normal_and_front_face (Sphere s) pos r.direction <span class="kw">in</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>                <span class="kw">let</span> hit_record = HitRecord.create_null () <span class="kw">in</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>                hit_record.t &lt;- t;</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>                hit_record.pos &lt;- pos;</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>                hit_record.normal &lt;- normal;</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>                hit_record.is_front_face &lt;- front_face;</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>                HitRecord.Hit (hit_record)</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> check_collision r shape =</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">match</span> shape <span class="kw">with</span></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>        | Sphere s -&gt; sphere_ray_collision r s</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>        | _ -&gt; <span class="dt">raise</span> (ShapeError <span class="st">&quot;No collision defined for shape&quot;</span>)</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <h3 id="object">Object</h3>
+                <p>Now we can define an object, for now this is solely a
+                wrapper around a shape, but will eventually be used to
+                add materials</p>
+                <div class="sourceCode" id="cb11"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Object.ml *)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Shape</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Object = <span class="kw">struct</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> object_T = {</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        shape: Shape.shape_T;</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create s = {</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        shape = s</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> check_collision o r =</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        Shape.check_collision r o.shape</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <h3 id="scene">Scene</h3>
+                <p>Finally we can implement the scene. This will be
+                where most of the actual ray tracer actually occurs and
+                so ends up being relatively complex. For now though, it
+                remains pretty simple</p>
+                <div class="sourceCode" id="cb12"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Scene.ml *)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Object</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Ray</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Viewport</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Image</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Scene = <span class="kw">struct</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> scene_definition = {</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> objects: Object.object_T <span class="dt">array</span>;</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> image_width: <span class="dt">int</span>;</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> image_height: <span class="dt">int</span>;</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">mutable</span> viewport: Viewport.viewport_T;</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create_null =</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="kw">fun</span> () -&gt; {</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>            objects = [||];</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>            image_width = <span class="dv">0</span>;</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>            image_height = <span class="dv">0</span>;</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>            viewport = Viewport.create_null ();</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> add_object def o =</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        def.objects &lt;- (<span class="dt">Array</span>.append def.objects [| o |]);</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        def</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> calculate_colour _scene _ray =</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>        Vec3.zero</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> per_pixel x y scene origin top_left right_delta down_delta =</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> right = Vec3.scalar right_delta (<span class="dt">float_of_int</span> x) <span class="kw">in</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> down = Vec3.scalar down_delta (<span class="dt">float_of_int</span> y) <span class="kw">in</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> ray_origin = origin <span class="kw">in</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> target = Vec3.add top_left (Vec3.add right down) <span class="kw">in</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> ray = Ray.create ray_origin (Vec3.sub target ray_origin) <span class="kw">in</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> colour = calculate_colour scene ray <span class="kw">in</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>        colour</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> render_scene scene =</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> origin = Vec3.zero <span class="kw">in</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> image = Image.create_vec3_image scene.image_width scene.image_height <span class="kw">in</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> (top_left, right, down) = Viewport.get_components scene.viewport image <span class="kw">in</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> output_image = Image.mapi</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>            (<span class="kw">fun</span> _c x y -&gt; per_pixel x y scene origin top_left right down) image <span class="kw">in</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>        Image.ppm_of_pixel_image (Image.pixel_image_of_vec3_image output_image)</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <p>The code at the minute should produce a solid black
+                screen</p>
+                <h3 id="main">Main</h3>
+                <p>We can now rewrite the main class to utilise this new
+                scene class</p>
+                <div class="sourceCode" id="cb13"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Scene</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Shape</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Object</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Viewport</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> () =</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> sphere = Shape.create_sphere (Vec3.create <span class="dv">0</span>. <span class="dv">0</span>. <span class="dv">1</span>.) <span class="fl">0.5</span> <span class="kw">in</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> obj1 = Object.create sphere <span class="kw">in</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> viewport = Viewport.create <span class="dv">2</span>. <span class="dv">2</span>. <span class="dv">1</span>. <span class="kw">in</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scene_def = Scene.create_null () <span class="kw">in</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scene_def = Scene.add_object scene_def obj1 <span class="kw">in</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    scene_def.image_width &lt;- <span class="dv">200</span>;</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    scene_def.image_height &lt;- <span class="dv">200</span>;</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    scene_def.viewport &lt;- viewport;</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    Scene.render_scene scene_def</span></code></pre></div>
+                <p>which generates the following image <img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/solid.png" /></p>
+                <h2 id="proper-ray-calculations">Proper ray
+                calculations</h2>
+                <p>If we replace the temporary code we placed in
+                calculate_colour we can start calculating the proper ray
+                intersections</p>
+                <div class="sourceCode" id="cb14"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Scene.ml *)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> calculate_colour scene ray =</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> collisions = <span class="dt">Array</span>.mapi (<span class="kw">fun</span> i o -&gt; (i, Object.check_collision o ray)) scene.objects <span class="kw">in</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> (_index, closest) = <span class="dt">Array</span>.fold_left</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        (<span class="kw">fun</span> (index, hit) (i, x) -&gt;</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>            <span class="kw">match</span> hit, x <span class="kw">with</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>            | HitRecord.Miss, _ -&gt; (i, x)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            | HitRecord.Hit _h, HitRecord.Miss -&gt; (index, hit)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            | HitRecord.Hit h1, HitRecord.Hit h2 -&gt;</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> h1.t &lt; h2.t <span class="kw">then</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>                    (index, hit)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                    (i, x)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        ) (<span class="dv">-1</span>, HitRecord.Miss) collisions <span class="kw">in</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">match</span> closest <span class="kw">with</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>        | HitRecord.Miss -&gt;</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>                miss_colour ray</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        | HitRecord.Hit _h -&gt;</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>            Vec3.create <span class="dv">1</span>. <span class="dv">0</span>. <span class="dv">0</span>.</span></code></pre></div>
+                <p>This also requires us to implement a miss_colour
+                function and to also open HitRecord at the top of the
+                file</p>
+                <div class="sourceCode" id="cb15"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Scene.ml *)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> miss_colour _r =</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    Vec3.create <span class="dv">0</span>. <span class="dv">1</span>. <span class="dv">1</span>.</span></code></pre></div>
+                <p>Which finally generates our first ray traced image
+                <img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/first_raytraced.png" /></p>
+                <h2 id="rendering-normals">Rendering normals</h2>
+                <p>Before implementing any materials we can first see if
+                the normals are being calculated properly by first
+                implementing a scatter_ray method to our object</p>
+                <div class="sourceCode" id="cb16"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Object.ml *)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> scatter_ray _o (_r : Ray.ray) (h : HitRecord.hit_record) =</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> c_r = Float.<span class="dt">abs</span> h.normal.x <span class="kw">in</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> c_g = Float.<span class="dt">abs</span> h.normal.y <span class="kw">in</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> c_b = Float.<span class="dt">abs</span> h.normal.z <span class="kw">in</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> colour = Vec3.create c_r c_g c_b <span class="kw">in</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Some</span> (colour, Ray.create Vec3.zero Vec3.zero)</span></code></pre></div>
+                <p>And then once again modifying calculate_colour to</p>
+                <div class="sourceCode" id="cb17"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> calculate_colour scene ray =</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> collisions = <span class="dt">Array</span>.mapi (<span class="kw">fun</span> i o -&gt; (i, Object.check_collision o ray)) scene.objects <span class="kw">in</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> (index, closest) = <span class="dt">Array</span>.fold_left</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        (<span class="kw">fun</span> (index, hit) (i, x) -&gt;</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="kw">match</span> hit, x <span class="kw">with</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>            | HitRecord.Miss, _ -&gt; (i, x)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>            | HitRecord.Hit _h, HitRecord.Miss -&gt; (index, hit)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>            | HitRecord.Hit h1, HitRecord.Hit h2 -&gt;</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> h1.t &lt; h2.t <span class="kw">then</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>                    (index, hit)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>                    (i, x)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        ) (<span class="dv">-1</span>, HitRecord.Miss) collisions <span class="kw">in</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">match</span> closest <span class="kw">with</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        | HitRecord.Miss -&gt;</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>                miss_colour ray</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        | HitRecord.Hit h -&gt;</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>            <span class="kw">let</span> obj = scene.objects.(index) <span class="kw">in</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>            <span class="kw">let</span> <span class="dt">result</span> = Object.scatter_ray obj ray h <span class="kw">in</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>            <span class="kw">match</span> <span class="dt">result</span> <span class="kw">with</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>            | <span class="dt">Some</span> (c, _r) -&gt;</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>                    c</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>            | <span class="dt">None</span> -&gt;</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>                    Vec3.zero</span></code></pre></div>
+                <p>will allow us to see the following image <img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/first_normals.png" /></p>
+                <h3 id="a-better-scene">A better scene</h3>
+                <p>Due to the implementation of our calculate_colour
+                function we are able to easily add multiple objects to
+                the scene, with the following code we add 3 separate
+                spheres, which we will give different materials when we
+                implement the material system</p>
+                <div class="sourceCode" id="cb18"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Scene</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Shape</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Object</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Viewport</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> () =</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> left_sphere = Shape.create_sphere (Vec3.create ~-.<span class="fl">1.2</span> <span class="dv">0</span>. <span class="dv">2</span>.) <span class="fl">0.5</span> <span class="kw">in</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> center_sphere = Shape.create_sphere (Vec3.create <span class="dv">0</span>. <span class="dv">0</span>. <span class="fl">2.2</span>) <span class="fl">0.5</span> <span class="kw">in</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> right_sphere = Shape.create_sphere (Vec3.create <span class="fl">1.2</span> <span class="dv">0</span>. <span class="dv">2</span>.) <span class="fl">0.5</span> <span class="kw">in</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ground_sphere = Shape.create_sphere (Vec3.create <span class="dv">0</span>. <span class="fl">100.5</span> <span class="dv">2</span>.) <span class="dv">100</span>. <span class="kw">in</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> left_obj = Object.create left_sphere <span class="kw">in</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> center_obj = Object.create center_sphere <span class="kw">in</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> right_obj = Object.create right_sphere <span class="kw">in</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ground_obj = Object.create ground_sphere <span class="kw">in</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> viewport = Viewport.create <span class="dv">2</span>. <span class="dv">2</span>. <span class="dv">1</span>. <span class="kw">in</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scene_def = Scene.create_null () <span class="kw">in</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scene_def = Scene.add_object scene_def left_obj <span class="kw">in</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scene_def = Scene.add_object scene_def center_obj <span class="kw">in</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scene_def = Scene.add_object scene_def right_obj <span class="kw">in</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scene_def = Scene.add_object scene_def ground_obj <span class="kw">in</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    scene_def.image_width &lt;- <span class="dv">200</span>;</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    scene_def.image_height &lt;- <span class="dv">200</span>;</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    scene_def.viewport &lt;- viewport;</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    Scene.render_scene scene_def</span></code></pre></div>
+                <p>which generates <img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_normal.png" /></p>
             </div>
         </div>
 

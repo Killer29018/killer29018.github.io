@@ -1,9 +1,3 @@
 {
-    "blogs": [
-        {
-            "name": "Ocaml Raytracer : Part 1",
-            "date": "2024-",
-            "page": "blogPages/OcamlRaytracer_Part1.html"
-        }
-    ]
+    "blogs": []
 }

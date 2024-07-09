@@ -24,7 +24,7 @@
     margin: 10px;
     border-radius: 20px;
 
-    padding: 0 3vw;
+    padding: 0 10vw;
 
     background-color: var(--mantle);
 
@@ -48,9 +48,6 @@
 
     width: 100%;
 
-    align-items: left;
-    justify-content: left;
-
     margin: 5px;
     border-radius: 10px;
     padding: 10px;
@@ -60,4 +57,10 @@
     display: block;
 
     background-color: transparent;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

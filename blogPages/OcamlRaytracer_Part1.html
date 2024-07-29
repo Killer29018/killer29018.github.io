@@ -290,39 +290,39 @@
                 a software ray tracer in OCaml</h1>
                 <p>Building a ray tracer is a great introduction to
                 graphics, and even a basic hobby ray tracer can provide
-                great insight into how larger, commercial ray tracer’s
+                a great insight into how larger, commercial ray tracer’s
                 work. A basic ray tracer can be simple enough that they
                 can be implemented in nearly every language, requiring
-                only the ability to print out messages to form full
-                images using the <a
+                only the ability to print out text to form full images
+                with the use of the <a
                 href="https://en.wikipedia.org/wiki/Netpbm">ppm</a>
                 image format.</p>
                 <p>A great introduction into building a hobby ray tracer
                 is following the book series <a
                 href="https://raytracing.github.io/">ray tracing in one
                 weekend</a> by Peter Shirley, Trevor D Black and Steve
-                Hollasch. The book series uses only c++ and the standard
-                library which means if you have never wrote a ray tracer
-                but would like to find somewhere to start I would highly
-                recommend starting with this series, even only following
-                the first book in the series is a great introduction to
-                the in-depth world of ray tracers.</p>
-                <p>With the help of that book series I decided a great
-                way to learn <a href="https://ocaml.org/">OCaml</a> was
-                by implementing a ray tracer. In particular this first
-                part, in what is hopefully a series of blogs, implements
-                all the features from the <a
-                href="https://raytracing.github.io/books/RayTracingInOneWeekend.html">first
-                book</a>. With that this blog will go over the basics of
-                implementing a ray tracer in OCaml and will highlight
-                some of the positives to using a functional
-                language.</p>
+                Hollasch. The book series uses only C++ and its standard
+                library which makes it incredibly easy to start writing
+                your first ray tracer. The first book is targeted
+                towards the basics and is meant for everyone. While the
+                second and third are targeted towards those who are more
+                interested in learning more about ray tracers.</p>
+                <p>Following the rough outline of that book series I
+                decided to further my knowledge in <a
+                href="https://ocaml.org/">OCaml</a> by implementing a
+                ray tracer within it, and then explaining the code in
+                this blog, and what is hopefully a series of blogs for
+                each book. The ray tracer will also be extended with
+                other features including obj parsing and external scene
+                definitions. With that said, if you follow the steps
+                outlined in this blog you will end up with a fully
+                functional ray tracer</p>
                 <h2 id="the-beginning">The beginning</h2>
                 <p>The first step in implementing any ray tracer is
-                being able to get an image of what is being rendered. To
-                begin I created two modules, one for a 3D vector, and
-                one for each pixel. The basic implementation of these
-                two modules is as follows:</p>
+                being able to get an image of what is being rendered.
+                The first step of this is to be able to represent the
+                pixels themselves. We can accomplish this using two
+                separate structures, a 3D vector and a pixel.</p>
                 <div class="sourceCode" id="cb1"><pre
                 class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Vec3.ml *)</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Vec3 = <span class="kw">struct</span></span>
@@ -384,6 +384,11 @@
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> string_of_pixel p =</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Printf</span>.sprintf <span class="st">&quot;%3d %3d %3d&quot;</span> p.x p.y p.z</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <p>The vec3 is a simple wrapper around 3 floats, and
+                includes some basic operations that will be used, with
+                more operations being added later on. More operations
+                will be added at a later point but they are not needed
+                at the minute and so will be excluded for now.</p>
                 <p>The pixel type is used as an intermediary between the
                 colours generated by the ray tracer, where each
                 component has a value between 0-1, and the output
@@ -429,6 +434,18 @@
                 <img
                 src="../assets/imgs/blogs/OcamlRaytracer_Part1/example_ppm.png" /></p>
                 <h2 id="images">Images</h2>
+                <p>The image module is a wrapper for the data of the
+                physical image, storing the width, height, and actual
+                data of the image in some format. The module also
+                includes some basic operations that can be applied
+                including: - map: Applies a function to every pixel in
+                the image, returning a new image - mapi: The same as map
+                but also includes the coordinates of the pixel as an
+                argument - iter: Applies a function to every pixel but
+                does not return a new image</p>
+                <p>Some basic creation functions are also provided,
+                along with conversions between pixel and vec3 images and
+                a way to print the image to the console</p>
                 <div class="sourceCode" id="cb4"><pre
                 class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Image.ml *)</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
@@ -470,9 +487,10 @@
 <span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Printf</span>.printf <span class="st">&quot;P3</span><span class="ch">\n</span><span class="st">%d %d</span><span class="ch">\n</span><span class="st">255</span><span class="ch">\n</span><span class="st">&quot;</span> i.width i.height;</span>
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        print_pixel_image i</span>
 <span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
-                <p>And finally we can add into the main file some code
-                that can produce a basic image. For example we can
-                generate a checkerboard with the following code</p>
+                <p>With that implementation we can add some code to the
+                main file, which allows us to generate a basic image.
+                The way of generating this image is the cornerstone to
+                how the entire ray traced image will be generated.</p>
                 <div class="sourceCode" id="cb5"><pre
                 class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
@@ -962,8 +980,329 @@
 <span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    scene_def.image_height &lt;- <span class="dv">200</span>;</span>
 <span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    scene_def.viewport &lt;- viewport;</span>
 <span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    Scene.render_scene scene_def</span></code></pre></div>
-                <p>which generates <img
+                <p>Which generates <img
                 src="../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_normal.png" /></p>
+                <h2 id="materials">Materials</h2>
+                <p>First we need to add some new functions to our vec3
+                module. This is mostly for generating random vectors.
+                This is because the lambertian material we will be
+                implementing first effectively models the microfacets
+                (the microscopic peaks and valleys) in a surface.
+                Meaning any ray that hits an object has a roughly equal
+                chance to bounce in any other direction with a slight
+                preference towards the normal.</p>
+                <p>In the vec3 module we add these definitions</p>
+                <div class="sourceCode" id="cb19"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Vec3.ml *)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> random_bounds <span class="dt">min</span> <span class="dt">max</span> =</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> x = <span class="dt">min</span> +. (<span class="dt">Random</span>.<span class="dt">float</span> (<span class="dt">max</span> -. <span class="dt">min</span>)) <span class="kw">in</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> y = <span class="dt">min</span> +. (<span class="dt">Random</span>.<span class="dt">float</span> (<span class="dt">max</span> -. <span class="dt">min</span>)) <span class="kw">in</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> z = <span class="dt">min</span> +. (<span class="dt">Random</span>.<span class="dt">float</span> (<span class="dt">max</span> -. <span class="dt">min</span>)) <span class="kw">in</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    create x y z</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> random_in_unit_sphere =</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fun</span> () -&gt;</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> v = <span class="dt">ref</span> (random_bounds ~-.<span class="dv">1</span>. <span class="dv">1</span>.) <span class="kw">in</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">while</span> <span class="dt">not</span> ((mag_squared !v) &lt; <span class="dv">1</span>.) <span class="kw">do</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">let</span> new_v = random_bounds ~-.<span class="dv">1</span>. <span class="dv">1</span>. <span class="kw">in</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>            v := new_v;</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">done</span>; !v</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> random_unit =</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fun</span> () -&gt;</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>        norm (random_in_unit_sphere ())</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> near_zero v =</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> eps = <span class="fl">1e-8</span> <span class="kw">in</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    (mag_squared v) &lt; eps</span></code></pre></div>
+                <p>Then the basic implementation for any material is as
+                follows</p>
+                <div class="sourceCode" id="cb20"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Material.ml *)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Vec3</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> Ray</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> HitRecord</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Material = <span class="kw">struct</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> material_T = <span class="dt">None</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">exception</span> MaterialError <span class="kw">of</span> <span class="dt">string</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> create_null = <span class="kw">fun</span> () -&gt; <span class="dt">None</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scatter_ray mat _ray hit =</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">match</span> mat <span class="kw">with</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        | _ -&gt; <span class="dt">raise</span> (MaterialError <span class="st">&quot;No Material Scatter defined&quot;</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+                <p>From this we can easily implement a lambertian
+                material along with a few others we will implement at a
+                later point. This can be accomplished by modifying
+                material_T to include a Lambertian type along with
+                implementing a scatter method for the material</p>
+                <div class="sourceCode" id="cb21"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Material.ml *)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> material_lambertian = {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    albedo: Vec3.vec3;</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> material_T = <span class="dt">None</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                | Lambertian <span class="kw">of</span> material_lambertian</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> create_lambertian albedo =</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    Lambertian { albedo = albedo }</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> scatter_lambertian (lambertian : material_lambertian) (hit : HitRecord.hit_record) =</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scatter_direction = Vec3.add hit.normal (Vec3.random_unit ()) <span class="kw">in</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scatter_direction =</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> Vec3.near_zero scatter_direction <span class="kw">then</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>            hit.normal</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>            scatter_direction</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> scattered_ray = Ray.create hit.pos scatter_direction <span class="kw">in</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Some</span> (lambertian.albedo, scattered_ray)</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> scatter_ray mat _ray hit =</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">match</span> mat <span class="kw">with</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    | Lambertian l -&gt; scatter_lambertian l hit</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    | _ -&gt; <span class="dt">raise</span> (MaterialError <span class="st">&quot;No Material Scatter defined&quot;</span>)</span></code></pre></div>
+                <p>Our scatter_lambertian function takes in the normal
+                at the hit position and adds to that vector another
+                randomly generated vector, generating the scattered
+                direction for our ray with a skew towards the normal. In
+                addition to this to colour of the object is returned
+                from the function</p>
+                <p>As we have now implemented materials we will also now
+                need to modify our object class to account for this.
+                This is easily done by just modifying the object_T type
+                and modifying the scatter_ray method</p>
+                <div class="sourceCode" id="cb22"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Object.ml *)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> create s m = {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    shape = s; material = m</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> scatter_ray o (r : Ray.ray) (h : HitRecord.hit_record) =</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>Material.scatter_ray o.material r h</span></code></pre></div>
+                <p>Finally we can modify our main file to account for
+                the change in the object, allowing us to account for the
+                lambertian material</p>
+                <p>Adding to the top of the file</p>
+                <div class="sourceCode" id="cb23"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> material_left = Material.create_lambertian (Vec3.create <span class="dv">1</span>. <span class="dv">0</span>. <span class="dv">0</span>.) <span class="kw">in</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> material_center = Material.create_lambertian (Vec3.create <span class="dv">1</span>. <span class="dv">0</span>. <span class="dv">1</span>.) <span class="kw">in</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> material_right = Material.create_lambertian (Vec3.create <span class="dv">0</span>. <span class="dv">0</span>. <span class="dv">1</span>.) <span class="kw">in</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> material_ground = Material.create_lambertian (Vec3.create <span class="fl">0.1</span> <span class="fl">0.9</span> <span class="fl">0.1</span>) <span class="kw">in</span></span></code></pre></div>
+                <p>and then modifying our object generation to be</p>
+                <div class="sourceCode" id="cb24"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> left_obj = Object.create left_sphere material_left <span class="kw">in</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> center_obj = Object.create center_sphere material_center <span class="kw">in</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> right_obj = Object.create right_sphere material_right <span class="kw">in</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> ground_obj = Object.create ground_sphere material_ground <span class="kw">in</span></span></code></pre></div>
+                <p>Which should now generated the following image <img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_lambertian_no_shadow.png" /></p>
+                <h2 id="shadows">Shadows</h2>
+                <p>Before we carry on implementing more materials, you
+                may be questioning why the previous image looks so flat,
+                and the colours may not be what you expected. This is
+                due to no shadows being currently implemented. We have
+                all the features implemented that we need to get shadows
+                we just need to modify our scene code.</p>
+                <p>The most important thing when implementing shadows is
+                to ensure there is a limit to the total depth of the ray
+                as otherwise the ray may get stuck and never stop
+                bouncing on different objects. To ensure this does not
+                occur we will add a max depth to our scene
+                definition</p>
+                <div class="sourceCode" id="cb25"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* scene.ml *)</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> scene_definition = {</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="kw">mutable</span> objects: Object.object_T <span class="dt">array</span>;</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="kw">mutable</span> image_width: <span class="dt">int</span>;</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="kw">mutable</span> image_height: <span class="dt">int</span>;</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="kw">mutable</span> viewport: Viewport.viewport_T;</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="kw">mutable</span> max_depth: <span class="dt">int</span>;</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+                <p>We can now modify our calculate colour function to be
+                recursive with a few additional checks for the
+                depth.</p>
+                <div class="sourceCode" id="cb26"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* scene.ml *)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> create_null =</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fun</span> () -&gt; {</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        objects = [||];</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        image_width = <span class="dv">0</span>;</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        image_height = <span class="dv">0</span>;</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        viewport = Viewport.create_null ();</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        max_depth = <span class="dv">1</span>;</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">rec</span> calculate_colour scene ray depth =</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> depth &lt;= <span class="dv">0</span> <span class="kw">then</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>        Vec3.zero</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>        ...</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">match</span> <span class="dt">result</span> <span class="kw">with</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>        | <span class="dt">Some</span> (c, r) -&gt;</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>                Vec3.comp_mul c (calculate_colour scene r (depth - <span class="dv">1</span>))</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>        | <span class="dt">None</span> -&gt;</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>                Vec3.zero</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> per_pixel x y scene origin top_left right_delta down_delta =</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> colour = calculate_colour scene ray scene.max_depth <span class="kw">in</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    colour</span></code></pre></div>
+                <p>And then once again modifying our main file to
+                account for max_depth</p>
+                <div class="sourceCode" id="cb27"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>scene_def.max_depth &lt;- <span class="dv">100</span>;</span></code></pre></div>
+                <p>We can generate the following image</p>
+                <p><img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_lambertian_shadow_no_red.png" /></p>
+                <p>Which might look a bit weird but is physically
+                correct. This is due to our miss colour being (0, 1, 1),
+                meaning our red sphere on the left should appear
+                completely black as there is no red in the light to be
+                reflected. If instead we modify our miss colour to be a
+                solid white then the following image is generated which
+                looks more correct</p>
+                <div class="sourceCode" id="cb28"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* scene.ml *)</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> miss_colour _r =</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    Vec3.create <span class="dv">1</span>. <span class="dv">1</span>. <span class="dv">1</span>.</span></code></pre></div>
+                <p><img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_lambertian_shadow_white.png" /></p>
+                <h2 id="shadow-acne">Shadow-acne</h2>
+                <p>We can see fro the previous two images that now we
+                have implemented shadows there are a lot of black spots
+                that are appearing around the image. This is due to rays
+                reaching their max depth. We can reduce this by
+                implementing multi-sampling, which increases the number
+                of rays cast, making it less likely for all the rays to
+                reach their max depth. Multi-sampling has the additional
+                benefit of reducing the jagged edges caused around the
+                edges of objects, providing a smoother look to the
+                entire image. A basic implementation of multi-sampling
+                involves generating more rays, all going in the same
+                direction, but then offsetting that direction a tiny
+                amount randomly and then averaging the output of all the
+                rays to generate the output for that pixel. This causes
+                the image to now take longer to generate, but overall
+                provides a much better looking image.</p>
+                <p>To begin we will modify our scene definition to
+                account for our sample count</p>
+                <div class="sourceCode" id="cb29"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* scene.ml *)</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> scene_definition = {</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">mutable</span> objects: Object.object_T <span class="dt">array</span>;</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">mutable</span> image_width: <span class="dt">int</span>;</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">mutable</span> image_height: <span class="dt">int</span>;</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">mutable</span> viewport: Viewport.viewport_T;</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">mutable</span> max_depth: <span class="dt">int</span>;</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">mutable</span> sample_count: <span class="dt">int</span>;</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> create_null =</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fun</span> () -&gt; {</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        objects = [||];</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        image_width = <span class="dv">0</span>;</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>        image_height = <span class="dv">0</span>;</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>        viewport = Viewport.create_null ();</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>        max_depth = <span class="dv">1</span>;</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>        sample_count = <span class="dv">1</span>;</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div>
+                <p>We can then modify our per_pixel function to allow
+                for more rays to be generated. This can easily be
+                accomplished by using OCaml’s Array module and its
+                functional methods. We will move the generation of the
+                ray into it’s own internal method and then generate an
+                array of rays. From that we can generate the colour for
+                each ray using map and then folding the output to
+                generate the average of all the colours. To start we
+                move the ray generation to an internal function and
+                implement randomness.</p>
+                <div class="sourceCode" id="cb30"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* scene.ml *)</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> per_pixel x y scene origin top_left right_delta down_delta =</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> right = Vec3.scalar right_delta (<span class="dt">float_of_int</span> x) <span class="kw">in</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> down = Vec3.scalar down_delta (<span class="dt">float_of_int</span> y) <span class="kw">in</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ray_origin = origin <span class="kw">in</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> generate_ray _ =</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> offset = Vec3.random_bounds (~-.<span class="fl">0.5</span>) <span class="fl">0.5</span> <span class="kw">in</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> off_x = Vec3.scalar right_delta offset.x <span class="kw">in</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> off_y = Vec3.scalar down_delta offset.y <span class="kw">in</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> target = Vec3.add top_left (Vec3.add right down) <span class="kw">in</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> target = Vec3.add target (Vec3.add off_x off_y) <span class="kw">in</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> ray = Ray.create ray_origin (Vec3.sub target ray_origin) <span class="kw">in</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>        ray</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ray = generate_ray () <span class="kw">in</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> colour = calculate_colour scene ray scene.max_depth <span class="kw">in</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    colour</span></code></pre></div>
+                <p>As generating the ray has been moved to its own
+                function we can now use the Array.init function to
+                generate an array of a specified size using this
+                function</p>
+                <div class="sourceCode" id="cb31"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> rays = <span class="dt">Array</span>.init scene.sample_count generate_ray <span class="kw">in</span></span></code></pre></div>
+                <p>Now we can apply the calculate_colour function to
+                each ray</p>
+                <div class="sourceCode" id="cb32"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> colours = <span class="dt">Array</span>.map (<span class="kw">fun</span> r -&gt; calculate_colour scene r scene.max_depth) rays <span class="kw">in</span></span></code></pre></div>
+                <p>Now we can fold the output to generate the sum of all
+                the colours</p>
+                <div class="sourceCode" id="cb33"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> colour = <span class="dt">Array</span>.fold_left Vec3.add Vec3.zero colours <span class="kw">in</span></span></code></pre></div>
+                <p>Finally we can renormalise the output to get a number
+                between 0 and 1</p>
+                <div class="sourceCode" id="cb34"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> colour = Vec3.scalar colour (<span class="dv">1</span>. /. (<span class="dt">float_of_int</span> scene.sample_count)) <span class="kw">in</span></span></code></pre></div>
+                <p>Bringing this all together we end up with the new
+                per_pixel function</p>
+                <div class="sourceCode" id="cb35"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* scene.ml *)</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> per_pixel x y scene origin top_left right_delta down_delta =</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> right = Vec3.scalar right_delta (<span class="dt">float_of_int</span> x) <span class="kw">in</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> down = Vec3.scalar down_delta (<span class="dt">float_of_int</span> y) <span class="kw">in</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ray_origin = origin <span class="kw">in</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> generate_ray _ =</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> offset = Vec3.random_bounds (~-.<span class="fl">0.5</span>) <span class="fl">0.5</span> <span class="kw">in</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> off_x = Vec3.scalar right_delta offset.x <span class="kw">in</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> off_y = Vec3.scalar down_delta offset.y <span class="kw">in</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> target = Vec3.add top_left (Vec3.add right down) <span class="kw">in</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> target = Vec3.add target (Vec3.add off_x off_y) <span class="kw">in</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> ray = Ray.create ray_origin (Vec3.sub target ray_origin) <span class="kw">in</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>        ray</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> rays = <span class="dt">Array</span>.init scene.sample_count generate_ray <span class="kw">in</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> colours = <span class="dt">Array</span>.map (<span class="kw">fun</span> r -&gt; calculate_colour scene r scene.max_depth) rays <span class="kw">in</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> colour = <span class="dt">Array</span>.fold_left (Vec3.add) Vec3.zero colours <span class="kw">in</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> colour = Vec3.scalar colour (<span class="dv">1</span>. /. (<span class="dt">float_of_int</span> scene.sample_count)) <span class="kw">in</span></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>    colour</span></code></pre></div>
+                <p>Finally modifying our main scene_definition to
+                account for the sample count allows us to generate the
+                following image</p>
+                <div class="sourceCode" id="cb36"><pre
+                class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* main.ml *)</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    scene_def.sample_count &lt;- <span class="dv">40</span>;</span></code></pre></div>
+                <p>Which generates the following image <img
+                src="../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_lambertian_shadow_acne.png" /></p>
+                <p>Which we can see has now reduced the amount of
+                shadow-acne drastically and, if you look closely at the
+                edges of the sphere, has rounded out the spheres so that
+                they now look nicer</p>
             </div>
         </div>
 

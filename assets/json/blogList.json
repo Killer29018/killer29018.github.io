@@ -1,3 +1,9 @@
 {
-    "blogs": []
+    "blogs": [
+        {
+            "author": "Aaron Danton",
+            "date": "2024-07-05",
+            "title": "OCaml Ray tracer"
+        }
+    ]
 }

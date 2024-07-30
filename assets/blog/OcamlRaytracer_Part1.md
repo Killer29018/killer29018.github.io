@@ -2,7 +2,7 @@
 title: OCaml Ray tracer
 author: Aaron Danton
 date: 2024-07-05
-complete: false
+complete: true
 ...
 
 # Writing a software ray tracer in OCaml
@@ -174,7 +174,8 @@ module Image = struct
         {
             width = i.width;
             height = i.height;
-            data = Array.mapi (fun yp r -> Array.mapi (fun xp x -> f x xp yp) r) i.data
+            data = Array.mapi
+                (fun yp r -> Array.mapi (fun xp x -> f x xp yp) r) i.data
         }
 
     let iter f i =
@@ -334,12 +335,16 @@ module Viewport = struct
         let up = Vec3.create 0. ~-.1. 0. in
 
         let center = Vec3.add (Vec3.scalar front v.depth) origin in
-        let left = Vec3.add (Vec3.scalar (Vec3.negate right) half_width) center in
+        let left =
+            Vec3.add (Vec3.scalar (Vec3.negate right) half_width) center in
 
-        let top_left = Vec3.add (Vec3.scalar up half_height) left in
-        let delta_right = Vec3.scalar right (v.width /. (float_of_int i.width)) in
-        let delta_down = Vec3.scalar (Vec3.negate up) (v.height /. (float_of_int i.height)) in
-
+        let top_left =
+            Vec3.add (Vec3.scalar up half_height) left in
+        let delta_right =
+            Vec3.scalar right (v.width /. (float_of_int i.width)) in
+        let delta_down =
+            Vec3.scalar (Vec3.negate up)
+                        (v.height /. (float_of_int i.height)) in
         (top_left, delta_right, delta_down)
 end
 ```
@@ -442,7 +447,8 @@ module Shape = struct
                 HitRecord.Miss
             else
                 let pos = Ray.calculate_position r t in
-                let (normal, front_face) = get_normal_and_front_face (Sphere s) pos r.direction in
+                let (normal, front_face) =
+                    get_normal_and_front_face (Sphere s) pos r.direction in
                 let hit_record = HitRecord.create_null () in
                 hit_record.t <- t;
                 hit_record.pos <- pos;
@@ -526,11 +532,15 @@ module Scene = struct
 
     let render_scene scene =
         let origin = Vec3.zero in
-        let image = Image.create_vec3_image scene.image_width scene.image_height in
-        let (top_left, right, down) = Viewport.get_components scene.viewport image in
+        let image =
+            Image.create_vec3_image scene.image_width scene.image_height in
+        let (top_left, right, down) =
+            Viewport.get_components scene.viewport image in
         let output_image = Image.mapi
-            (fun _c x y -> per_pixel x y scene origin top_left right down) image in
-        Image.ppm_of_pixel_image (Image.pixel_image_of_vec3_image output_image)
+            (fun _c x y ->
+                per_pixel x y scene origin top_left right down) image in
+        Image.ppm_of_pixel_image
+            (Image.pixel_image_of_vec3_image output_image)
 end
 ```
 
@@ -568,7 +578,8 @@ can start calculating the proper ray intersections
 ```ocaml
 (* Scene.ml *)
 let calculate_colour scene ray =
-    let collisions = Array.mapi (fun i o -> (i, Object.check_collision o ray)) scene.objects in
+    let collisions = Array.mapi
+        (fun i o -> (i, Object.check_collision o ray)) scene.objects in
     let (_index, closest) = Array.fold_left
         (fun (index, hit) (i, x) ->
             match hit, x with
@@ -614,7 +625,8 @@ let scatter_ray _o (_r : Ray.ray) (h : HitRecord.hit_record) =
 And then once again modifying calculate_colour to
 ```ocaml
 let calculate_colour scene ray =
-    let collisions = Array.mapi (fun i o -> (i, Object.check_collision o ray)) scene.objects in
+    let collisions = Array.mapi
+        (fun i o -> (i, Object.check_collision o ray)) scene.objects in
     let (index, closest) = Array.fold_left
         (fun (index, hit) (i, x) ->
             match hit, x with
@@ -750,7 +762,8 @@ type material_T = None
 let create_lambertian albedo =
     Lambertian { albedo = albedo }
 
-let scatter_lambertian (lambertian : material_lambertian) (hit : HitRecord.hit_record) =
+let scatter_lambertian (lambertian : material_lambertian)
+                       (hit : HitRecord.hit_record) =
     let scatter_direction = Vec3.add hit.normal (Vec3.random_unit ()) in
     let scatter_direction =
         if Vec3.near_zero scatter_direction then
@@ -1000,9 +1013,11 @@ let per_pixel x y scene origin top_left right_delta down_delta =
     in
 
     let rays = Array.init scene.sample_count generate_ray in
-    let colours = Array.map (fun r -> calculate_colour scene r scene.max_depth) rays in
+    let colours =
+        Array.map (fun r -> calculate_colour scene r scene.max_depth) rays in
     let colour = Array.fold_left (Vec3.add) Vec3.zero colours in
-    let colour = Vec3.scalar colour (1. /. (float_of_int scene.sample_count)) in
+    let colour =
+            Vec3.scalar colour (1. /. (float_of_int scene.sample_count)) in
     colour
 ```
 
@@ -1019,3 +1034,303 @@ Which generates the following image
 
 Which we can see has now reduced the amount of shadow-acne drastically and, if you look closely
 at the edges of the sphere, has rounded out the spheres so that they now look nicer
+
+## Remaining Materials
+Now that shadows are implemented we can start implementing the remaining materials
+for this section which include metals and dielectrics (See through objects)
+
+### Metal
+The metal material is relatively easy to implement. The ray is perfectly reflected
+along the normal with some additional fuzz, that modifies the reflected direction
+randomly causing the shape to become less reflective as the amount of fuzz is increased.
+
+To begin with a reflect method will be needed to be implemented
+
+```ocaml
+(* Vec3.ml *)
+let reflect v n =
+    sub v (scalar n (2. *. (dot v n)))
+```
+
+Now we are able to implement the metal material, which due to our existing implementation
+of materials only requires us to modify the material_T type and implement a scatter
+function
+```ocaml
+(* Material.ml *)
+type material_metal = {
+    albedo: Vec3.vec3;
+    fuzz: float;
+}
+
+type material_T = None
+                | Lambertian of material_lambertian
+                | Metal of material_metal
+
+let create_metal albedo fuzz =
+    Metal { albedo = albedo; fuzz = fuzz }
+
+let scatter_metal (metal : material_metal) (ray : Ray.ray)
+                  (hit : HitRecord.hit_record) =
+    let reflected = Vec3.reflect (ray.direction) hit.normal in
+    let reflected = Vec3.add (Vec3.norm reflected)
+                     (Vec3.scalar (Vec3.random_unit ()) metal.fuzz) in
+    let scattered_ray = Ray.create hit.pos reflected in
+    Some (metal.albedo, scattered_ray)
+
+let scatter_ray mat ray hit =
+    match mat with
+    | Lambertian l -> scatter_lambertian l hit
+    | Metal m -> scatter_metal m ray hit
+    | _ -> raise (MaterialError "No Material Scatter defined")
+```
+
+Now modifying main to change the left and right object to have our new
+metal material with different fuzziness, and increasing the depth and sample count
+we get the following image
+
+```ocaml
+(* main.ml *)
+let material_left = Material.create_metal (Vec3.create 1. 0. 0.) 1. in
+let material_right = Material.create_metal (Vec3.create 0. 0. 1.) 0.2 in
+...
+scene_def.max_depth <- 200;
+scene_def.sample_count <- 100;
+```
+
+![](../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_metal.png)
+
+### Dielectrics
+The last material that will be implemented in this chapter is the Dielectric material,
+which are materials that are see through e.g. glass, water.
+
+First we will implement a refraction for the vectors, creating a new vector
+based on a normal and an angle
+```ocaml
+(* Vec3.ml *)
+let refract uv n e =
+    let cos_theta = min (dot (negate uv) n) 1. in
+    let r_out_perp = scalar (add uv (scalar n cos_theta)) e in
+    let r_out_para = scalar n
+        (~-.(sqrt (Float.abs (1. -. (mag_squared r_out_perp))))) in
+    add r_out_perp r_out_para
+```
+
+From this we can implement the dielectric material itself
+
+```ocaml
+type material_dielectric = {
+    refraction_index: float;
+}
+
+type material_T = None
+                | Lambertian of material_lambertian
+                | Metal of material_metal
+                | Dielectric of material_dielectric
+
+let create_dielectric refraction =
+    Dielectric { refraction_index = refraction }
+
+let reflectance cosine refraction_index =
+    let r0 = (1. /. refraction_index) /. (1. +. refraction_index) in
+    let r0 = r0 *. r0 in
+    r0 +. (1. -. r0) *. (Float.pow (1. -. cosine) 5.)
+
+let scatter_dielectric (dielectric : material_dielectric) (ray: Ray.ray)
+                       (hit : HitRecord.hit_record) =
+    let colour = Vec3.one in
+    let ri =
+        if hit.is_front_face then
+            1. /. dielectric.refraction_index
+        else
+            dielectric.refraction_index
+    in
+    let unit_direction = Vec3.norm ray.direction in
+    let cos_theta =
+            min (Vec3.dot (Vec3.negate unit_direction) hit.normal) 1. in
+    let sin_theta = sqrt (1. -. cos_theta *. cos_theta) in
+    let cannot_refract = (ri *. sin_theta) > 1. in
+    let direction =
+        if cannot_refract ||
+                (reflectance cos_theta ri) > Random.float 1. then
+            Vec3.reflect unit_direction hit.normal
+        else
+            Vec3.refract unit_direction hit.normal ri
+    in
+    let scattered_ray = Ray.create hit.pos direction in
+    Some (colour, scattered_ray)
+
+let scatter_ray mat ray hit =
+    match mat with
+    | Lambertian l -> scatter_lambertian l hit
+    | Metal m -> scatter_metal m ray hit
+    | Dielectric d -> scatter_dielectric d ray hit
+    | _ -> raise (MaterialError "No Material Scatter defined")
+```
+
+And finally we can replace the material for the center sphere to generate a
+glass ball in the centre of the scene.
+
+```ocaml
+(* main.ml *)
+let material_center = Material.create_dielectric 1.5 in
+
+let center_sphere = Shape.create_sphere (Vec3.create 0. 0. 2.2) 0.5 in
+```
+
+Which generates the following image
+![](../assets/imgs/blogs/OcamlRaytracer_Part1/three_spheres_dielectric.png)
+
+## Camera
+The final thing the will be implemented is a camera, allowing for the user
+to easily position a virtual camera and easily specify a point in the world that
+should be contained at the center of the image
+
+Just before we define start implementing the camera, we are going to define some
+constants within the Vec3 module
+
+```ocaml
+(* vec3.ml *)
+let p_x = create 1. 0. 0.
+let p_y = create 0. 1. 0.
+let p_z = create 0. 0. 1.
+
+let n_x = create (~-.1.)     0.      0.
+let n_y = create     0.  (~-.1.)     0.
+let n_z = create     0.      0.  (~-.1.)
+```
+
+To begin with we define a new module that will contain camera record and
+some functions to generate that record and generate the relative front, right and
+up directions of the camera.
+
+We first need to implement a cross function for the vectors
+```ocaml
+(* Vec3.ml *)
+let cross a b =
+    { x = a.y *. b.z -. a.z *. b.y;
+      y = a.z *. b.x -. a.x *. b.z;
+      z = a.x *. b.y -. a.y *. b.x }
+```
+
+Then implementing the Camera itself
+```ocaml
+(* Camera.ml *)
+open Vec3
+
+module Camera = struct
+    type camera_T = {
+        pos: Vec3.vec3;
+        look_at: Vec3.vec3;
+
+        world_up: Vec3.vec3;
+        world_front: Vec3.vec3;
+        world_right: Vec3.vec3;
+
+        up: Vec3.vec3;
+        front: Vec3.vec3;
+        right: Vec3.vec3;
+    }
+
+    let create_null =
+        fun () -> {
+            pos = Vec3.zero;
+            look_at = Vec3.zero;
+
+            world_up = Vec3.n_y;
+            world_front = Vec3.p_z;
+            world_right = Vec3.p_x;
+
+            up = Vec3.zero;
+            front = Vec3.zero;
+            right = Vec3.zero;
+        }
+
+    let calculate_directions c =
+        let front = Vec3.norm (Vec3.sub c.look_at c.pos) in
+        let right = Vec3.norm (Vec3.cross front c.world_up) in
+        let up = Vec3.norm (Vec3.cross right front) in
+        {
+            pos = c.pos;
+            look_at = c.look_at;
+
+            world_up = c.world_up;
+            world_front = c.world_front;
+            world_right = c.world_right;
+
+            up = up;
+            front = front;
+            right = right;
+        }
+
+    let create p l =
+        let c = {
+            pos = p;
+            look_at = l;
+
+            world_up = Vec3.n_y;
+            world_front = Vec3.p_z;
+            world_right = Vec3.p_x;
+
+            up = Vec3.zero;
+            front = Vec3.zero;
+            right = Vec3.zero;
+        } in
+        calculate_directions c
+end
+```
+
+We now have the basics of the camera class and we just need to modify
+other areas in the code to now account for this new module.
+
+First modifying the viewport get_components class to account for the camera
+```ocaml
+(* Viewport.ml *)
+let get_components v (c : Camera.camera_T) (i : 'a Image.image) =
+    ...
+    let origin = c.pos in
+    let front = c.front in
+    let right = c.right in
+    let up = c.up in
+    ...
+```
+
+Then modifying the scene definition and now accounting the change for the viewport
+and ray origin
+
+```ocaml
+(* Scene.ml *)
+open Camera
+type scene_definition = {
+    mutable objects: Object.object_T array;
+
+    mutable image_width: int;
+    mutable image_height: int;
+
+    mutable viewport: Viewport.viewport_T;
+    mutable camera: Camera.camera_T;
+
+    mutable max_depth: int;
+    mutable sample_count: int;
+}
+
+let create_null =
+    fun () -> {
+        objects = [||];
+        image_width = 0;
+        image_height = 0;
+        viewport = Viewport.create_null ();
+        camera = Camera.create_null ();
+        max_depth = 1;
+        sample_count = 1;
+    }
+
+let render_scene scene =
+    let origin = scene.camera.pos in
+    ...
+    let (top_left, right, down) = Viewport.get_components scene.viewport
+            scene.camera image in
+    ...
+```
+
+Which should result our final image of this blog
+![](../assets/imgs/blogs/OcamlRaytracer_Part1/final.png)

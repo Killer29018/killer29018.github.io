@@ -20,7 +20,9 @@
 
 #blog-content {
     position: relative;
-    width: 74vw;
+    box-sizing: border-box;
+    min-width: 90%;
+
     margin: 10px;
     border-radius: 20px;
 

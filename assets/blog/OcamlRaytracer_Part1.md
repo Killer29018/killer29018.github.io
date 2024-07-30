@@ -1,5 +1,5 @@
 ---
-title: OCaml Ray tracer
+title: OCaml Ray Tracer - Part 1
 author: Aaron Danton
 date: 2024-07-05
 complete: true

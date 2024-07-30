@@ -41,7 +41,7 @@ def parse_MetaBool(inline):
     content = inline["c"]
     return content
 
-def parse_meta(meta):
+def parse_meta(meta, file):
     global output_json
 
     title = ""
@@ -101,10 +101,13 @@ def parse_meta(meta):
     except:
         raise
 
+    # page =
+
     entry = {
         "title": title,
         "author": author,
-        "date": date
+        "date": date,
+        "page": file
     }
     output_json["blogs"].append(entry)
 
@@ -127,7 +130,7 @@ for x in names:
 
     meta = js["meta"]
 
-    parse_meta(meta)
+    parse_meta(meta, "{0}/{1}.html".format(output_location, x))
     print()
 
 print("")

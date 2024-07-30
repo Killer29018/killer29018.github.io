@@ -54,7 +54,7 @@ function populateBlogs(json) {
         date.setAttribute("class", "blogListDate");
 
         var name = document.createElement("td");
-        name.innerText = `${blog["name"]}`;
+        name.innerText = `${blog["title"]}`;
         name.setAttribute("class", "blogListName");
 
         var divider = document.createElement("div");

@@ -43,6 +43,6 @@
             "img": "",
             "link": "https://github.com/Rylthos/LRGenerator",
             "description": "An Ocaml program that takes a grammar and returns the goto and action tables for the language"
-        },
+        }
     ]
 }

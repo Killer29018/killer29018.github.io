@@ -1,37 +1,48 @@
 {
     "activeProjects": [
-        {
-            "name": "OCaml Ray Tracer",
-            "img": "./assets/imgs/projects/OcamlRayTracer.png",
-            "link": "https://github.com/Killer29018/OcamlRaytracer/tree/V2",
-            "description": "A raytracer written in OCaml, outputting to a PPM file. Capable of loading OBJ files"
-        }
     ],
     "previousProjects": [
         {
             "name": "Compute shader Raytracer",
             "img": "./assets/imgs/projects/ComputeShaderRaytracer.png",
-            "link": "https://github.com/Killer29018/ComputeShaderRaytracer",
+            "link": "https://github.com/Rylthos/ComputeShaderRaytracer",
             "description": "A compute shader raytracer based on the raytracer from the 'Raytracing in one weekend' series by Peter Shirley"
         },
         {
             "name": "Rubik Cube Solver",
             "img": "./assets/imgs/projects/RubikCube.png",
-            "link": "https://github.com/Killer29018/RubikCubeSolver",
+            "link": "https://github.com/Rylthos/RubikCubeSolver",
             "description": "A Rubik cube visualiser and solver capable of solving both a 2x2 and 3x3 cube based on the beginner's method"
         },
         {
             "name": "LED Controller",
             "img": "./assets/imgs/projects/LEDController.png",
-            "link": "https://github.com/Killer29018/LEDController",
+            "link": "https://github.com/Rylthos/LEDController",
             "description": "A controller for an LED matrix using WLED for control, allowing for different effects and colour palettes to be selected and created"
         },
         {
             "name": "Concat",
             "img": "./assets/imgs/projects/Concat.png",
-            "link": "https://github.com/Killer29018/Concat",
+            "link": "https://github.com/Rylthos/Concat",
             "description": "A Reverse Polish Notation (RPN) based scripting language"
-        }
+        },
+        {
+            "name": "OCaml Ray Tracer",
+            "img": "./assets/imgs/projects/OcamlRayTracer.png",
+            "link": "https://github.com/Rylthos/OcamlRaytracer/tree/V2",
+            "description": "A raytracer written in OCaml, outputting to a PPM file. Capable of loading OBJ files"
+        },
+        {
+            "name": "OCaml LR Parser / Lexer",
+            "img": "",
+            "link": "https://github.com/Rylthos/OCamlCalculatorCompiler",
+            "description": "A basic Parser/Lexer that takes an LR grammar and generates a parse tree for an expression"
+        },
+        {
+            "name": "LR Table Generator",
+            "img": "",
+            "link": "https://github.com/Rylthos/LRGenerator",
+            "description": "An Ocaml program that takes a grammar and returns the goto and action tables for the language"
+        },
     ]
 }
-

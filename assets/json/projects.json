@@ -1,5 +1,11 @@
 {
     "activeProjects": [
+        {
+            "name": "Voxel Raytracing ENgine",
+            "img": "./assets/imgs/projects/VoxelEngine.png",
+            "link": "https://github.com/Rylthos/VoxelEngine",
+            "description": "A voxel based raytracer"
+        }
     ],
     "previousProjects": [
         {
